@@ -6,8 +6,8 @@
 #include <iostream>
 #include <fstream>
 
-const size_t attribute_count = 1000;
-int max_elements = 10000;   // Maximum number of elements, should be known beforehand
+const size_t attribute_count = 1000; // Number of attributes
+int max_elements = 10000;   // Maximum number of elements
 // Use a vector to store attribute bitsets for each label_id
 std::vector<std::bitset<attribute_count>> label_attributes(max_elements);
 
@@ -64,7 +64,7 @@ BenchmarkResult runBenchmark(double probability) {
     }
 
     std::bitset<attribute_count> query_attributes;
-    // Set 2 bits to 1
+    // Set 2 bits of the query to 1
     query_attributes.set(50);
     query_attributes.set(100);
     
@@ -83,7 +83,7 @@ BenchmarkResult runBenchmark(double probability) {
     result.search_latency = std::chrono::duration<double>(search_end - search_start).count();
     result.sparsity = 1.0 - (double)total_set_bits / (max_elements * attribute_count);
 
-    // Calculate memory usage (size of all bitsets)
+    // Calculate memory usage
     result.memory_usage = max_elements * (attribute_count / 8);  // size in bytes
 
     delete[] data;

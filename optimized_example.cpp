@@ -8,8 +8,8 @@
 #include <fstream>
 
 
-const size_t attribute_count = 1000;
-int max_elements = 10000;   // Maximum number of elements, should be known beforehand
+const size_t attribute_count = 1000; // Number of attributes
+int max_elements = 10000;   // Maximum number of elements
 // Use a vector to store Roaring Bitmaps for each label_id
 std::vector<roaring::Roaring> label_attributes(max_elements);
 
@@ -67,12 +67,12 @@ BenchmarkResult runBenchmark(double probability) {
         alg_hnsw->addPoint(data + i * dim, i);
     }
 
-    // Measure only kNN search latency
     roaring::Roaring query_attributes;
-    // Set 2 bits to 1
+    // Set 2 bits of the query to 1
     query_attributes.add(0);
     query_attributes.add(5);
     
+    // I assume that the first point is the query point
     int query_label = 0;
     float* query_point = data + query_label * dim;
     AttributeFilter attributeFilter(query_attributes);
