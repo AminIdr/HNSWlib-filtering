@@ -51,6 +51,7 @@ BenchmarkResult runBenchmark(double probability) {
     // Attribute assignment
     std::bernoulli_distribution distrib_bit(probability);
     size_t total_set_bits = 0;
+    // Skip the first point (as it is the query point)
     for (int i = 1; i < max_elements; i++) {
         std::bitset<attribute_count> attributes;
         for (size_t j = 0; j < attribute_count; j++) {
@@ -73,6 +74,7 @@ BenchmarkResult runBenchmark(double probability) {
     AttributeFilter attributeFilter(query_attributes);
     
     int k = 2;
+    // Measure only seach latency
     auto search_start = std::chrono::high_resolution_clock::now();
     auto result_set = alg_hnsw->searchKnnCloserFirst(query_point, k, &attributeFilter);
     auto search_end = std::chrono::high_resolution_clock::now();
@@ -115,8 +117,3 @@ int main() {
     results.close();
     return 0;
 }
-
-// TODO: Remove Number of iterations
-// TODO: runBenchmark inefficient as it does the same thing multiple times (creation of data points and attributes)
-// Try to set all bits to 0 in each call
-// Comparison to vector label 0?

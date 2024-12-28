@@ -55,7 +55,8 @@ BenchmarkResult runBenchmark(double probability) {
     // Attribute assignment
     std::bernoulli_distribution distrib_bit(probability);
     size_t total_set_bits = 0;
-    for (int i = 0; i < max_elements; i++) {
+    // Skip the first point (as it is the query point)
+    for (int i = 1; i < max_elements; i++) {
         label_attributes[i] = roaring::Roaring();
         for (size_t j = 0; j < attribute_count; j++) {
             if (distrib_bit(rng)) {
@@ -68,6 +69,7 @@ BenchmarkResult runBenchmark(double probability) {
 
     // Measure only kNN search latency
     roaring::Roaring query_attributes;
+    // Set 2 bits to 1
     query_attributes.add(0);
     query_attributes.add(5);
     
@@ -76,6 +78,7 @@ BenchmarkResult runBenchmark(double probability) {
     AttributeFilter attributeFilter(query_attributes);
     
     int k = 2;
+    // Measure only seach latency
     auto search_start = std::chrono::high_resolution_clock::now();
     auto result_set = alg_hnsw->searchKnnCloserFirst(query_point, k, &attributeFilter);
     auto search_end = std::chrono::high_resolution_clock::now();
@@ -101,22 +104,13 @@ int main() {
     std::ofstream results("roaring_benchmark_results.csv", std::ios::app);
     results << "probability,sparsity,search_latency,memory\n";
     
-    const int NUM_ITERATIONS = 5;
-    
     for (double p : probabilities) {
         BenchmarkResult avg_result = {0, 0, 0};
         
-        for (int i = 0; i < NUM_ITERATIONS; i++) {
-            auto result = runBenchmark(p);
-            avg_result.search_latency += result.search_latency;
-            avg_result.sparsity += result.sparsity;
-            avg_result.memory_usage += result.memory_usage;
-        }
-        
-        // Average the results
-        avg_result.search_latency /= NUM_ITERATIONS;
-        avg_result.sparsity /= NUM_ITERATIONS;
-        avg_result.memory_usage /= NUM_ITERATIONS;
+        auto result = runBenchmark(p);
+        avg_result.search_latency += result.search_latency;
+        avg_result.sparsity += result.sparsity;
+        avg_result.memory_usage += result.memory_usage;
         
         results << p << ","
                 << avg_result.sparsity << ","
